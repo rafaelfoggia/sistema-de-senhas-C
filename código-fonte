@@ -1,0 +1,84 @@
+#include <stdio.h>
+#include <ctype.h>
+
+char filaU[50][6], filaP[50][6], filaN[50][6], atual[6];
+int iU, fU, cU, iP, fP, cP, iN, fN, cN, ativo;
+
+void limpa() { while (getchar() != '\n'); }
+
+char lerSN(char *txt) {
+    char c;
+    do {
+        printf("%s (S/N): ", txt);
+        scanf(" %c", &c); limpa();
+        c = toupper(c);
+    } while (c != 'S' && c != 'N');
+    return c;
+}
+
+int classificar(char g, int id, char ge, char la, char ne, char ob) {
+    if (id > 80) return 1;
+    if (ge=='S' || la=='S' || ne=='S' || ob=='S' || (g=='F'&&id>=60) || (g=='M'&&id>=65)) return 2;
+    return 3;
+}
+
+void cadastrar() {
+    char g, ge = 'N', la = 'N', ne, ob;
+    int id;
+    do { printf("Genero (M/F): "); scanf(" %c", &g); limpa(); g = toupper(g); } while (g != 'M' && g != 'F');
+    do { printf("Idade: "); } while (scanf("%d", &id) != 1 || id < 0 || id > 130 ? (limpa(), 1) : (limpa(), 0));
+    if (g == 'F' && id >= 10 && id <= 60) { ge = lerSN("Gestante"); la = lerSN("Lactante"); }
+    ne = lerSN("Necessidade especial");
+    ob = lerSN("Obesidade");
+
+    int cat = classificar(g, id, ge, la, ne, ob);
+    if (cat == 1) { sprintf(filaU[fU], "U%03d", ++cU); printf("Senha: %s (Urgente)\n", filaU[fU++]); }
+    else if (cat == 2) { sprintf(filaP[fP], "P%03d", ++cP); printf("Senha: %s (Preferencial)\n", filaP[fP++]); }
+    else { sprintf(filaN[fN], "N%03d", ++cN); printf("Senha: %s (Normal)\n", filaN[fN++]); }
+}
+
+void proxima() {
+    if (iU < fU) printf("Proxima: %s (Urgente)\n", filaU[iU]);
+    else if (iP < fP) printf("Proxima: %s (Preferencial)\n", filaP[iP]);
+    else if (iN < fN) printf("Proxima: %s (Normal)\n", filaN[iN]);
+    else printf("Fila vazia.\n");
+}
+
+void chamar() {
+    if (ativo) { printf("Finalize %s antes.\n", atual); return; }
+    if (iU < fU) sprintf(atual, "%s", filaU[iU++]);
+    else if (iP < fP) sprintf(atual, "%s", filaP[iP++]);
+    else if (iN < fN) sprintf(atual, "%s", filaN[iN++]);
+    else { printf("Fila vazia.\n"); return; }
+    ativo = 1;
+    printf("Chamando: %s\n", atual);
+}
+
+void finalizar() {
+    if (!ativo) printf("Nenhuma em atendimento.\n");
+    else { printf("Finalizada: %s\n", atual); ativo = 0; }
+}
+
+void painel() {
+    printf("\nAtual: %s\n", ativo ? atual : "Nenhuma");
+    printf("Urgentes (%d): ", fU - iU); for (int i = iU; i < fU; i++) printf("%s ", filaU[i]);
+    printf("\nPreferenciais (%d): ", fP - iP); for (int i = iP; i < fP; i++) printf("%s ", filaP[i]);
+    printf("\nNormais (%d): ", fN - iN); for (int i = iN; i < fN; i++) printf("%s ", filaN[i]);
+    printf("\n");
+}
+
+int main() {
+    int op;
+    do {
+        printf("\n1-Cadastrar 2-Proxima 3-Chamar 4-Finalizar 5-Painel 0-Sair: ");
+        if (scanf("%d", &op) != 1) { limpa(); op = -1; continue; }
+        limpa();
+        if (op == 1) cadastrar();
+        else if (op == 2) proxima();
+        else if (op == 3) chamar();
+        else if (op == 4) finalizar();
+        else if (op == 5) painel();
+        else if (op != 0) printf("Invalido.\n");
+    } while (op != 0);
+    return 0;
+}
