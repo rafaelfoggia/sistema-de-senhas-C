@@ -34,5 +34,7 @@ Durante o cadastro, o sistema avalia os dados informados na seguinte ordem de pr
 ### Passo a passo
 
 1.Copie o código fonte
+
 2. cole no compilador
+
 3. execute o código
